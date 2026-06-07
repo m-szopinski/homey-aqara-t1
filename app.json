@@ -1,3 +1,876 @@
 {
-  "_comment": "This file is generated. Please edit .homeycompose/app.json instead."
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.company.myapp",
+  "version": "1.0.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Aqara T1"
+  },
+  "description": {
+    "en": "Adds support for Aqara T1 relay modules (Single Switch Module T1, with and without neutral).",
+    "nl": "Voegt ondersteuning toe voor Aqara T1 relaismodules (Single Switch Module T1, met en zonder nul).",
+    "pl": "Dodaje obsługę modułów przekaźnikowych Aqara T1 (Single Switch Module T1, z przewodem neutralnym i bez)."
+  },
+  "category": [
+    "lights"
+  ],
+  "brandColor": "#009688",
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "m-szopinski",
+    "email": "m-szopinski@users.noreply.github.com"
+  },
+  "support": "https://github.com/m-szopinski/homey-aqara-t1/issues",
+  "flow": {
+    "triggers": [
+      {
+        "id": "nn_s1_turned_off",
+        "title": {
+          "en": "S1 input turned off",
+          "nl": "S1-ingang uitgeschakeld",
+          "pl": "Wejście S1 wyłączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=single_switch_module_t1_no_neutral"
+          }
+        ]
+      },
+      {
+        "id": "nn_s1_turned_on",
+        "title": {
+          "en": "S1 input turned on",
+          "nl": "S1-ingang ingeschakeld",
+          "pl": "Wejście S1 włączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=single_switch_module_t1_no_neutral"
+          }
+        ]
+      },
+      {
+        "id": "s1_turned_off",
+        "title": {
+          "en": "S1 input turned off",
+          "nl": "S1-ingang uitgeschakeld",
+          "pl": "Wejście S1 wyłączone"
+        },
+        "hint": {
+          "en": "Triggered when the switch connected to terminal S1 is switched off.",
+          "nl": "Wordt geactiveerd wanneer de schakelaar op klem S1 wordt uitgeschakeld.",
+          "pl": "Wyzwalane, gdy przełącznik podłączony do zacisku S1 zostanie wyłączony."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=single_switch_module_t1"
+          }
+        ]
+      },
+      {
+        "id": "s1_turned_on",
+        "title": {
+          "en": "S1 input turned on",
+          "nl": "S1-ingang ingeschakeld",
+          "pl": "Wejście S1 włączone"
+        },
+        "hint": {
+          "en": "Triggered when the switch connected to terminal S1 is switched on.",
+          "nl": "Wordt geactiveerd wanneer de schakelaar op klem S1 wordt ingeschakeld.",
+          "pl": "Wyzwalane, gdy przełącznik podłączony do zacisku S1 zostanie włączony."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=single_switch_module_t1"
+          }
+        ]
+      },
+      {
+        "id": "t2_s1_turned_off",
+        "title": {
+          "en": "S1 input turned off",
+          "nl": "S1-ingang uitgeschakeld",
+          "pl": "Wejście S1 wyłączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dual_relay_module_t2"
+          }
+        ]
+      },
+      {
+        "id": "t2_s1_turned_on",
+        "title": {
+          "en": "S1 input turned on",
+          "nl": "S1-ingang ingeschakeld",
+          "pl": "Wejście S1 włączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dual_relay_module_t2"
+          }
+        ]
+      },
+      {
+        "id": "t2_s2_turned_off",
+        "title": {
+          "en": "S2 input turned off",
+          "nl": "S2-ingang uitgeschakeld",
+          "pl": "Wejście S2 wyłączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dual_relay_module_t2"
+          }
+        ]
+      },
+      {
+        "id": "t2_s2_turned_on",
+        "title": {
+          "en": "S2 input turned on",
+          "nl": "S2-ingang ingeschakeld",
+          "pl": "Wejście S2 włączone"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dual_relay_module_t2"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Dual Relay Module T2",
+        "nl": "Dual Relay Module T2",
+        "pl": "Moduł przekaźnikowy T2 – 2 kanały"
+      },
+      "class": "socket",
+      "capabilities": [
+        "onoff",
+        "onoff.l2",
+        "onoff.s1",
+        "onoff.s2",
+        "measure_power",
+        "meter_power",
+        "measure_voltage",
+        "measure_current",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": {
+            "en": "Relay L1",
+            "nl": "Relais L1",
+            "pl": "Przekaźnik L1"
+          }
+        },
+        "onoff.l2": {
+          "title": {
+            "en": "Relay L2",
+            "nl": "Relais L2",
+            "pl": "Przekaźnik L2"
+          }
+        },
+        "onoff.s1": {
+          "title": {
+            "en": "S1 input",
+            "nl": "S1-ingang",
+            "pl": "Wejście S1"
+          },
+          "setable": false,
+          "getable": true,
+          "insights": true,
+          "uiComponent": "sensor"
+        },
+        "onoff.s2": {
+          "title": {
+            "en": "S2 input",
+            "nl": "S2-ingang",
+            "pl": "Wejście S2"
+          },
+          "setable": false,
+          "getable": true,
+          "insights": true,
+          "uiComponent": "sensor"
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "zigbee"
+      ],
+      "images": {
+        "small": "/drivers/dual_relay_module_t2/assets/images/small.png",
+        "large": "/drivers/dual_relay_module_t2/assets/images/large.png",
+        "xlarge": "/drivers/dual_relay_module_t2/assets/images/xlarge.png"
+      },
+      "zigbee": {
+        "manufacturerName": [
+          "LUMI",
+          "Aqara"
+        ],
+        "productId": [
+          "lumi.switch.acn047"
+        ],
+        "endpoints": {
+          "1": {
+            "clusters": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              9,
+              10,
+              64704
+            ],
+            "bindings": [
+              6
+            ]
+          },
+          "2": {
+            "clusters": [
+              0,
+              6,
+              64704
+            ],
+            "bindings": [
+              6
+            ]
+          }
+        },
+        "learnmode": {
+          "image": "/drivers/dual_relay_module_t2/assets/images/large.png",
+          "instruction": {
+            "en": "Press and hold the module's button for at least 5 seconds, until the indicator flashes blue. Then release it — the module is now in pairing mode.",
+            "nl": "Houd de knop van de module minstens 5 seconden ingedrukt, totdat het lampje blauw knippert. Laat daarna los — de module staat nu in de koppelmodus.",
+            "pl": "Naciśnij i przytrzymaj przycisk modułu przez co najmniej 5 sekund, aż dioda zacznie migać na niebiesko. Następnie puść — moduł jest teraz w trybie parowania."
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "power_outage_memory",
+          "type": "checkbox",
+          "label": {
+            "en": "Power-outage memory",
+            "nl": "Geheugen bij stroomuitval",
+            "pl": "Pamięć stanu po zaniku zasilania"
+          },
+          "value": true,
+          "hint": {
+            "en": "When enabled, the relays restore their last on/off state after a power cut.",
+            "nl": "Indien ingeschakeld herstellen de relais hun laatste aan/uit-stand na een stroomonderbreking.",
+            "pl": "Gdy włączone, przekaźniki przywracają ostatni stan (wł./wył.) po zaniku zasilania."
+          }
+        },
+        {
+          "id": "interlock",
+          "type": "checkbox",
+          "label": {
+            "en": "Interlock",
+            "nl": "Vergrendeling",
+            "pl": "Blokada wzajemna (interlock)"
+          },
+          "value": false,
+          "hint": {
+            "en": "When enabled, the two relays can never be on at the same time (useful for motor/roller-shade control).",
+            "nl": "Indien ingeschakeld kunnen de twee relais nooit tegelijk aan zijn (handig voor motor-/rolluikbesturing).",
+            "pl": "Gdy włączone, oba przekaźniki nigdy nie są włączone jednocześnie (przydatne do sterowania silnikiem/roletą)."
+          }
+        },
+        {
+          "id": "operation_mode_l1",
+          "type": "dropdown",
+          "label": {
+            "en": "S1 input mode (relay L1)",
+            "nl": "S1-ingangsmodus (relais L1)",
+            "pl": "Tryb wejścia S1 (przekaźnik L1)"
+          },
+          "value": "control_relay",
+          "hint": {
+            "en": "\"Control relay\": S1 toggles relay L1 directly. \"Decoupled\": S1 only reports its state to Homey.",
+            "nl": "\"Relais aansturen\": S1 schakelt relais L1 direct. \"Ontkoppeld\": S1 meldt alleen zijn status aan Homey.",
+            "pl": "„Steruj przekaźnikiem\": S1 przełącza przekaźnik L1 bezpośrednio. „Oddzielony\": S1 tylko raportuje swój stan do Homey."
+          },
+          "values": [
+            {
+              "id": "control_relay",
+              "label": {
+                "en": "Control relay",
+                "nl": "Relais aansturen",
+                "pl": "Steruj przekaźnikiem"
+              }
+            },
+            {
+              "id": "decoupled",
+              "label": {
+                "en": "Decoupled (report only)",
+                "nl": "Ontkoppeld (alleen melden)",
+                "pl": "Oddzielony (tylko raport)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "operation_mode_l2",
+          "type": "dropdown",
+          "label": {
+            "en": "S2 input mode (relay L2)",
+            "nl": "S2-ingangsmodus (relais L2)",
+            "pl": "Tryb wejścia S2 (przekaźnik L2)"
+          },
+          "value": "control_relay",
+          "hint": {
+            "en": "\"Control relay\": S2 toggles relay L2 directly. \"Decoupled\": S2 only reports its state to Homey.",
+            "nl": "\"Relais aansturen\": S2 schakelt relais L2 direct. \"Ontkoppeld\": S2 meldt alleen zijn status aan Homey.",
+            "pl": "„Steruj przekaźnikiem\": S2 przełącza przekaźnik L2 bezpośrednio. „Oddzielony\": S2 tylko raportuje swój stan do Homey."
+          },
+          "values": [
+            {
+              "id": "control_relay",
+              "label": {
+                "en": "Control relay",
+                "nl": "Relais aansturen",
+                "pl": "Steruj przekaźnikiem"
+              }
+            },
+            {
+              "id": "decoupled",
+              "label": {
+                "en": "Decoupled (report only)",
+                "nl": "Ontkoppeld (alleen melden)",
+                "pl": "Oddzielony (tylko raport)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "switch_type",
+          "type": "dropdown",
+          "label": {
+            "en": "Switch type",
+            "nl": "Schakelaartype",
+            "pl": "Typ przełącznika"
+          },
+          "value": "toggle",
+          "hint": {
+            "en": "Type of the physical switches wired to S1/S2.",
+            "nl": "Type van de fysieke schakelaars op S1/S2.",
+            "pl": "Typ fizycznych przełączników podłączonych do S1/S2."
+          },
+          "values": [
+            {
+              "id": "toggle",
+              "label": {
+                "en": "Toggle (bistable)",
+                "nl": "Tuimelschakelaar",
+                "pl": "Bistabilny"
+              }
+            },
+            {
+              "id": "momentary",
+              "label": {
+                "en": "Momentary (push button)",
+                "nl": "Pulsdruk",
+                "pl": "Monostabilny (przycisk)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "work_mode",
+          "type": "dropdown",
+          "label": {
+            "en": "Work mode",
+            "nl": "Werkmodus",
+            "pl": "Tryb pracy"
+          },
+          "value": "power",
+          "hint": {
+            "en": "\"Power\": normal switching. \"Pulse\": momentary impulse (dry contact). \"Dry\": dry-contact mode.",
+            "nl": "\"Vermogen\": normaal schakelen. \"Puls\": kortstondige impuls (potentiaalvrij). \"Droog\": potentiaalvrije modus.",
+            "pl": "„Moc\": normalne przełączanie. „Impuls\": chwilowy impuls (styk bezpotencjałowy). „Suchy\": tryb styku bezpotencjałowego."
+          },
+          "values": [
+            {
+              "id": "power",
+              "label": {
+                "en": "Power",
+                "nl": "Vermogen",
+                "pl": "Moc"
+              }
+            },
+            {
+              "id": "pulse",
+              "label": {
+                "en": "Pulse (impulse)",
+                "nl": "Puls",
+                "pl": "Impuls"
+              }
+            },
+            {
+              "id": "dry",
+              "label": {
+                "en": "Dry contact",
+                "nl": "Droog contact",
+                "pl": "Styk bezpotencjałowy"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "dual_relay_module_t2"
+    },
+    {
+      "name": {
+        "en": "Single Switch Module T1 (with Neutral)",
+        "nl": "Single Switch Module T1 (met nul)",
+        "pl": "Moduł przekaźnikowy T1 – 1 kanał (z przewodem neutralnym)"
+      },
+      "class": "socket",
+      "capabilities": [
+        "onoff",
+        "onoff.s1",
+        "measure_power",
+        "meter_power",
+        "measure_voltage",
+        "measure_current",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": {
+            "en": "Relay",
+            "nl": "Relais",
+            "pl": "Przekaźnik"
+          }
+        },
+        "onoff.s1": {
+          "title": {
+            "en": "S1 input",
+            "nl": "S1-ingang",
+            "pl": "Wejście S1"
+          },
+          "setable": false,
+          "getable": true,
+          "insights": true,
+          "uiComponent": "sensor"
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "zigbee"
+      ],
+      "images": {
+        "small": "/drivers/single_switch_module_t1/assets/images/small.png",
+        "large": "/drivers/single_switch_module_t1/assets/images/large.png",
+        "xlarge": "/drivers/single_switch_module_t1/assets/images/xlarge.png"
+      },
+      "zigbee": {
+        "manufacturerName": [
+          "LUMI",
+          "Aqara"
+        ],
+        "productId": [
+          "lumi.switch.n0acn2",
+          "lumi.switch.n0agl1"
+        ],
+        "endpoints": {
+          "1": {
+            "clusters": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              9,
+              10,
+              64704
+            ],
+            "bindings": [
+              6
+            ]
+          },
+          "41": {
+            "clusters": [
+              18
+            ]
+          }
+        },
+        "learnmode": {
+          "image": "/drivers/single_switch_module_t1/assets/images/large.png",
+          "instruction": {
+            "en": "Press and hold the module's button (or the connected wall switch) for at least 5 seconds, until the indicator flashes blue. Then release it — the module is now in pairing mode.",
+            "nl": "Houd de knop van de module (of de aangesloten wandschakelaar) minstens 5 seconden ingedrukt, totdat het lampje blauw knippert. Laat daarna los — de module staat nu in de koppelmodus.",
+            "pl": "Naciśnij i przytrzymaj przycisk modułu (lub podłączony przełącznik ścienny) przez co najmniej 5 sekund, aż dioda zacznie migać na niebiesko. Następnie puść — moduł jest teraz w trybie parowania."
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "power_outage_memory",
+          "type": "checkbox",
+          "label": {
+            "en": "Power-outage memory",
+            "nl": "Geheugen bij stroomuitval",
+            "pl": "Pamięć stanu po zaniku zasilania"
+          },
+          "value": true,
+          "hint": {
+            "en": "When enabled, the relay restores its last on/off state after a power cut. When disabled, the relay stays off after power is restored.",
+            "nl": "Indien ingeschakeld herstelt de relais zijn laatste aan/uit-stand na een stroomonderbreking. Indien uitgeschakeld blijft de relais uit nadat de stroom is hersteld.",
+            "pl": "Gdy włączone, przekaźnik przywraca ostatni stan (wł./wył.) po zaniku zasilania. Gdy wyłączone, po przywróceniu zasilania przekaźnik pozostaje wyłączony."
+          }
+        },
+        {
+          "id": "operation_mode",
+          "type": "dropdown",
+          "label": {
+            "en": "S1 input mode",
+            "nl": "S1-ingangsmodus",
+            "pl": "Tryb wejścia S1"
+          },
+          "value": "control_relay",
+          "hint": {
+            "en": "Controls what the switch wired to S1 does. \"Control relay\": S1 toggles the relay directly (classic). \"Decoupled\": S1 no longer drives the relay locally and only reports its state to Homey, so you can use it in Flows independently.",
+            "nl": "Bepaalt wat de schakelaar op S1 doet. \"Relais aansturen\": S1 schakelt het relais direct. \"Ontkoppeld\": S1 stuurt het relais niet meer lokaal aan en meldt alleen zijn status aan Homey.",
+            "pl": "Określa, co robi przełącznik podłączony do S1. „Steruj przekaźnikiem\": S1 przełącza przekaźnik bezpośrednio (klasycznie). „Oddzielony (decoupled)\": S1 nie steruje już lokalnie przekaźnikiem i tylko raportuje swój stan do Homey, więc możesz go używać niezależnie we Flow."
+          },
+          "values": [
+            {
+              "id": "control_relay",
+              "label": {
+                "en": "Control relay",
+                "nl": "Relais aansturen",
+                "pl": "Steruj przekaźnikiem"
+              }
+            },
+            {
+              "id": "decoupled",
+              "label": {
+                "en": "Decoupled (report only)",
+                "nl": "Ontkoppeld (alleen melden)",
+                "pl": "Oddzielony (tylko raport)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "switch_type",
+          "type": "dropdown",
+          "label": {
+            "en": "S1 switch type",
+            "nl": "S1-schakelaartype",
+            "pl": "Typ przełącznika S1"
+          },
+          "value": "toggle",
+          "hint": {
+            "en": "Type of the physical switch wired to S1: \"Toggle\" for a bistable rocker switch, \"Momentary\" for a push button / bell switch.",
+            "nl": "Type van de fysieke schakelaar op S1: \"Tuimelschakelaar\" voor een bistabiele schakelaar, \"Pulsdruk\" voor een drukknop.",
+            "pl": "Typ fizycznego przełącznika podłączonego do S1: „Bistabilny\" dla klasycznego włącznika, „Monostabilny\" dla przycisku chwilowego/dzwonkowego."
+          },
+          "values": [
+            {
+              "id": "toggle",
+              "label": {
+                "en": "Toggle (bistable)",
+                "nl": "Tuimelschakelaar",
+                "pl": "Bistabilny"
+              }
+            },
+            {
+              "id": "momentary",
+              "label": {
+                "en": "Momentary (push button)",
+                "nl": "Pulsdruk",
+                "pl": "Monostabilny (przycisk)"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "single_switch_module_t1"
+    },
+    {
+      "name": {
+        "en": "Single Switch Module T1 (No Neutral)",
+        "nl": "Single Switch Module T1 (zonder nul)",
+        "pl": "Moduł przekaźnikowy T1 – 1 kanał (bez przewodu neutralnego)"
+      },
+      "class": "socket",
+      "capabilities": [
+        "onoff",
+        "onoff.s1",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "onoff.s1": {
+          "title": {
+            "en": "S1 input",
+            "nl": "S1-ingang",
+            "pl": "Wejście S1"
+          },
+          "setable": false,
+          "getable": true,
+          "insights": true,
+          "uiComponent": "sensor"
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "zigbee"
+      ],
+      "images": {
+        "small": "/drivers/single_switch_module_t1_no_neutral/assets/images/small.png",
+        "large": "/drivers/single_switch_module_t1_no_neutral/assets/images/large.png",
+        "xlarge": "/drivers/single_switch_module_t1_no_neutral/assets/images/xlarge.png"
+      },
+      "zigbee": {
+        "manufacturerName": [
+          "LUMI",
+          "Aqara"
+        ],
+        "productId": [
+          "lumi.switch.l0agl1",
+          "lumi.switch.l0acn1"
+        ],
+        "endpoints": {
+          "1": {
+            "clusters": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              9,
+              10,
+              64704
+            ],
+            "bindings": [
+              6
+            ]
+          },
+          "41": {
+            "clusters": [
+              18
+            ]
+          }
+        },
+        "learnmode": {
+          "image": "/drivers/single_switch_module_t1_no_neutral/assets/images/large.png",
+          "instruction": {
+            "en": "Press and hold the module's button (or the connected wall switch) for at least 5 seconds, until the indicator flashes blue. Then release it — the module is now in pairing mode.",
+            "nl": "Houd de knop van de module (of de aangesloten wandschakelaar) minstens 5 seconden ingedrukt, totdat het lampje blauw knippert. Laat daarna los — de module staat nu in de koppelmodus.",
+            "pl": "Naciśnij i przytrzymaj przycisk modułu (lub podłączony przełącznik ścienny) przez co najmniej 5 sekund, aż dioda zacznie migać na niebiesko. Następnie puść — moduł jest teraz w trybie parowania."
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "power_outage_memory",
+          "type": "checkbox",
+          "label": {
+            "en": "Power-outage memory",
+            "nl": "Geheugen bij stroomuitval",
+            "pl": "Pamięć stanu po zaniku zasilania"
+          },
+          "value": true,
+          "hint": {
+            "en": "When enabled, the relay restores its last on/off state after a power cut. When disabled, the relay stays off after power is restored.",
+            "nl": "Indien ingeschakeld herstelt de relais zijn laatste aan/uit-stand na een stroomonderbreking. Indien uitgeschakeld blijft de relais uit nadat de stroom is hersteld.",
+            "pl": "Gdy włączone, przekaźnik przywraca ostatni stan (wł./wył.) po zaniku zasilania. Gdy wyłączone, po przywróceniu zasilania przekaźnik pozostaje wyłączony."
+          }
+        },
+        {
+          "id": "operation_mode",
+          "type": "dropdown",
+          "label": {
+            "en": "S1 input mode",
+            "nl": "S1-ingangsmodus",
+            "pl": "Tryb wejścia S1"
+          },
+          "value": "control_relay",
+          "hint": {
+            "en": "\"Control relay\": S1 toggles the relay directly. \"Decoupled\": S1 only reports its state to Homey, so you can use it in Flows independently.",
+            "nl": "\"Relais aansturen\": S1 schakelt het relais direct. \"Ontkoppeld\": S1 meldt alleen zijn status aan Homey.",
+            "pl": "„Steruj przekaźnikiem\": S1 przełącza przekaźnik bezpośrednio. „Oddzielony (decoupled)\": S1 tylko raportuje swój stan do Homey, więc możesz go używać niezależnie we Flow."
+          },
+          "values": [
+            {
+              "id": "control_relay",
+              "label": {
+                "en": "Control relay",
+                "nl": "Relais aansturen",
+                "pl": "Steruj przekaźnikiem"
+              }
+            },
+            {
+              "id": "decoupled",
+              "label": {
+                "en": "Decoupled (report only)",
+                "nl": "Ontkoppeld (alleen melden)",
+                "pl": "Oddzielony (tylko raport)"
+              }
+            }
+          ]
+        },
+        {
+          "id": "switch_type",
+          "type": "dropdown",
+          "label": {
+            "en": "S1 switch type",
+            "nl": "S1-schakelaartype",
+            "pl": "Typ przełącznika S1"
+          },
+          "value": "toggle",
+          "hint": {
+            "en": "Type of the physical switch wired to S1: \"Toggle\" for a bistable rocker switch, \"Momentary\" for a push button.",
+            "nl": "Type van de fysieke schakelaar op S1: \"Tuimelschakelaar\" voor een bistabiele schakelaar, \"Pulsdruk\" voor een drukknop.",
+            "pl": "Typ fizycznego przełącznika podłączonego do S1: „Bistabilny\" dla klasycznego włącznika, „Monostabilny\" dla przycisku chwilowego."
+          },
+          "values": [
+            {
+              "id": "toggle",
+              "label": {
+                "en": "Toggle (bistable)",
+                "nl": "Tuimelschakelaar",
+                "pl": "Bistabilny"
+              }
+            },
+            {
+              "id": "momentary",
+              "label": {
+                "en": "Momentary (push button)",
+                "nl": "Pulsdruk",
+                "pl": "Monostabilny (przycisk)"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "single_switch_module_t1_no_neutral"
+    },
+    {
+      "name": {
+        "en": "2-Channel Wireless Relay (LLKZMK11LM)",
+        "nl": "2-kanaals draadloos relais (LLKZMK11LM)",
+        "pl": "Przekaźnik bezprzewodowy 2-kanałowy (LLKZMK11LM)"
+      },
+      "class": "socket",
+      "capabilities": [
+        "onoff",
+        "onoff.l2",
+        "measure_power",
+        "meter_power",
+        "measure_voltage",
+        "measure_current",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": {
+            "en": "Relay L1",
+            "nl": "Relais L1",
+            "pl": "Przekaźnik L1"
+          }
+        },
+        "onoff.l2": {
+          "title": {
+            "en": "Relay L2",
+            "nl": "Relais L2",
+            "pl": "Przekaźnik L2"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "zigbee"
+      ],
+      "images": {
+        "small": "/drivers/wireless_relay_2ch/assets/images/small.png",
+        "large": "/drivers/wireless_relay_2ch/assets/images/large.png",
+        "xlarge": "/drivers/wireless_relay_2ch/assets/images/xlarge.png"
+      },
+      "zigbee": {
+        "manufacturerName": [
+          "LUMI",
+          "Aqara"
+        ],
+        "productId": [
+          "lumi.relay.c2acn01"
+        ],
+        "endpoints": {
+          "1": {
+            "clusters": [
+              0,
+              3,
+              4,
+              5,
+              6,
+              10
+            ],
+            "bindings": [
+              6
+            ]
+          },
+          "2": {
+            "clusters": [
+              0,
+              6
+            ],
+            "bindings": [
+              6
+            ]
+          }
+        },
+        "learnmode": {
+          "image": "/drivers/wireless_relay_2ch/assets/images/large.png",
+          "instruction": {
+            "en": "Press and hold the module's button for at least 5 seconds, until the indicator flashes. Then release it — the module is now in pairing mode.",
+            "nl": "Houd de knop van de module minstens 5 seconden ingedrukt, totdat het lampje knippert. Laat daarna los — de module staat nu in de koppelmodus.",
+            "pl": "Naciśnij i przytrzymaj przycisk modułu przez co najmniej 5 sekund, aż dioda zacznie migać. Następnie puść — moduł jest teraz w trybie parowania."
+          }
+        }
+      },
+      "id": "wireless_relay_2ch"
+    }
+  ]
 }

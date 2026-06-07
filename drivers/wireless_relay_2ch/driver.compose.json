@@ -1,0 +1,71 @@
+{
+  "name": {
+    "en": "2-Channel Wireless Relay (LLKZMK11LM)",
+    "nl": "2-kanaals draadloos relais (LLKZMK11LM)",
+    "pl": "Przekaźnik bezprzewodowy 2-kanałowy (LLKZMK11LM)"
+  },
+  "class": "socket",
+  "capabilities": [
+    "onoff",
+    "onoff.l2",
+    "measure_power",
+    "meter_power",
+    "measure_voltage",
+    "measure_current",
+    "measure_temperature"
+  ],
+  "capabilitiesOptions": {
+    "onoff": {
+      "title": {
+        "en": "Relay L1",
+        "nl": "Relais L1",
+        "pl": "Przekaźnik L1"
+      }
+    },
+    "onoff.l2": {
+      "title": {
+        "en": "Relay L2",
+        "nl": "Relais L2",
+        "pl": "Przekaźnik L2"
+      }
+    }
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "zigbee"
+  ],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "zigbee": {
+    "manufacturerName": [
+      "LUMI",
+      "Aqara"
+    ],
+    "productId": [
+      "lumi.relay.c2acn01"
+    ],
+    "endpoints": {
+      "1": {
+        "clusters": [0, 3, 4, 5, 6, 10],
+        "bindings": [6]
+      },
+      "2": {
+        "clusters": [0, 6],
+        "bindings": [6]
+      }
+    },
+    "learnmode": {
+      "image": "{{driverAssetsPath}}/images/large.png",
+      "instruction": {
+        "en": "Press and hold the module's button for at least 5 seconds, until the indicator flashes. Then release it — the module is now in pairing mode.",
+        "nl": "Houd de knop van de module minstens 5 seconden ingedrukt, totdat het lampje knippert. Laat daarna los — de module staat nu in de koppelmodus.",
+        "pl": "Naciśnij i przytrzymaj przycisk modułu przez co najmniej 5 sekund, aż dioda zacznie migać. Następnie puść — moduł jest teraz w trybie parowania."
+      }
+    }
+  }
+}

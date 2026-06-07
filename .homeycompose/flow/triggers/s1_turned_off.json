@@ -1,0 +1,20 @@
+{
+  "id": "s1_turned_off",
+  "title": {
+    "en": "S1 input turned off",
+    "nl": "S1-ingang uitgeschakeld",
+    "pl": "Wejście S1 wyłączone"
+  },
+  "hint": {
+    "en": "Triggered when the switch connected to terminal S1 is switched off.",
+    "nl": "Wordt geactiveerd wanneer de schakelaar op klem S1 wordt uitgeschakeld.",
+    "pl": "Wyzwalane, gdy przełącznik podłączony do zacisku S1 zostanie wyłączony."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=single_switch_module_t1"
+    }
+  ]
+}

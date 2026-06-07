@@ -1,0 +1,20 @@
+{
+  "id": "s1_turned_on",
+  "title": {
+    "en": "S1 input turned on",
+    "nl": "S1-ingang ingeschakeld",
+    "pl": "Wejście S1 włączone"
+  },
+  "hint": {
+    "en": "Triggered when the switch connected to terminal S1 is switched on.",
+    "nl": "Wordt geactiveerd wanneer de schakelaar op klem S1 wordt ingeschakeld.",
+    "pl": "Wyzwalane, gdy przełącznik podłączony do zacisku S1 zostanie włączony."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=single_switch_module_t1"
+    }
+  ]
+}

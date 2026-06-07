@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Install devDependencies (TypeScript, @types, tsconfig base, zigbee libs)
+      # so the validator can read tsconfig and compile the app's TypeScript.
+      - run: npm ci
       - uses: athombv/github-action-homey-app-validate@master
         with:
           level: verified

@@ -1,0 +1,15 @@
+{
+  "id": "t2_s2_turned_off",
+  "title": {
+    "en": "S2 input turned off",
+    "nl": "S2-ingang uitgeschakeld",
+    "pl": "Wejście S2 wyłączone"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=dual_relay_module_t2"
+    }
+  ]
+}

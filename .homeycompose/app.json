@@ -10,11 +10,14 @@
     "en": "Aqara T1"
   },
   "description": {
-    "en": "Adds support for MyBrand devices."
+    "en": "Adds support for Aqara T1 relay modules (Single Switch Module T1, with and without neutral).",
+    "nl": "Voegt ondersteuning toe voor Aqara T1 relaismodules (Single Switch Module T1, met en zonder nul).",
+    "pl": "Dodaje obsługę modułów przekaźnikowych Aqara T1 (Single Switch Module T1, z przewodem neutralnym i bez)."
   },
   "category": [
     "lights"
   ],
+  "brandColor": "#009688",
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
@@ -22,7 +25,8 @@
     "xlarge": "/assets/images/xlarge.png"
   },
   "author": {
-    "name": "Michał Szopiński",
-    "email": "michal.szopinski5@gmail.com"
-  }
+    "name": "m-szopinski",
+    "email": "m-szopinski@users.noreply.github.com"
+  },
+  "support": "https://github.com/m-szopinski/homey-aqara-t1/issues"
 }
