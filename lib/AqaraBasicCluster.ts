@@ -16,9 +16,11 @@ const AQARA_MANUFACTURER_ID = 0x115f;
 class AqaraBasicCluster extends BasicCluster {
 
   static get ATTRIBUTES() {
-    return Object.assign({}, super.ATTRIBUTES, {
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
+    return {
+      ...super.ATTRIBUTES,
       aqaraOperationMode: { id: 0xff22, type: ZCLDataTypes.uint8, manufacturerId: AQARA_MANUFACTURER_ID },
-    });
+    };
   }
 
 }
