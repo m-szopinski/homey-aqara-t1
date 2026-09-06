@@ -5,9 +5,6 @@ import { CLUSTER } from 'zigbee-clusters';
 import AqaraManufacturerSpecificCluster = require('../../lib/AqaraManufacturerSpecificCluster');
 import aqara = require('../../lib/aqara');
 
-// Manufacturer code used for Aqara/LUMI manufacturer-specific attributes.
-const AQARA_MANUFACTURER_ID = 0x115f;
-
 export = class SingleSwitchModuleT1 extends ZigBeeDevice {
 
   async onNodeInit() {
@@ -81,6 +78,14 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
           .catch((err: Error) => this.error('Failed to handle S1 report:', err));
       });
     }
+
+    // Put the module in the mode that reports S1 actuations on the
+    // multistateInput cluster. Without this write the device stays silent in
+    // decoupled mode (zigbee-herdsman-converters does the same in its
+    // `configure` step for lumi.switch.n0acn2). Not all firmware variants
+    // support the attribute, so a failure is only logged.
+    await this.writeAqaraAttributes({ aqaraMode: 1 })
+      .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
 
     // Apply the stored manufacturer-cluster preferences to the device.
     await this.setPowerOutageMemory(this.getSetting('power_outage_memory') ?? true)
@@ -176,11 +181,12 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
 
   /**
    * Write one or more attributes to the Aqara manufacturer-specific cluster
-   * (0xFCC0) on endpoint 1, using the LUMI manufacturer code.
+   * (0xFCC0) on endpoint 1. The LUMI manufacturer code (0x115F) is applied by
+   * zigbee-clusters from the attribute definitions.
    */
   async writeAqaraAttributes(attributes: { [name: string]: number | boolean }) {
     return this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
-      .writeAttributes(attributes, { manufacturerId: AQARA_MANUFACTURER_ID });
+      .writeAttributes(attributes);
   }
 
   /**

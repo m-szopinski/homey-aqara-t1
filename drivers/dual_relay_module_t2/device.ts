@@ -5,9 +5,6 @@ import { CLUSTER } from 'zigbee-clusters';
 import AqaraManufacturerSpecificCluster = require('../../lib/AqaraManufacturerSpecificCluster');
 import aqara = require('../../lib/aqara');
 
-// Manufacturer code used for Aqara/LUMI manufacturer-specific attributes.
-const AQARA_MANUFACTURER_ID = 0x115f;
-
 // Per the zigbee-herdsman-converters definition, the T2 (LLKZMK12LM) reports the
 // energy struct key (149) in Wh, so it is scaled to kWh (÷1000). Other keys match
 // the shared defaults.
@@ -168,7 +165,9 @@ export = class DualRelayModuleT2 extends ZigBeeDevice {
       this.log(`Aqara cluster not present on endpoint ${endpoint}; skipping`, attributes);
       return;
     }
-    await cluster.writeAttributes(attributes, { manufacturerId: AQARA_MANUFACTURER_ID });
+    // The LUMI manufacturer code (0x115F) is applied by zigbee-clusters from
+    // the attribute definitions.
+    await cluster.writeAttributes(attributes);
   }
 
   /**
