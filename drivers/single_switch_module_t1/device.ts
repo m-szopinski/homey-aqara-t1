@@ -79,15 +79,6 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       });
     }
 
-    // Put the module in the mode that reports S1 actuations on the
-    // multistateInput cluster. Without this write the device stays silent in
-    // decoupled mode (zigbee-herdsman-converters does the same in its
-    // `configure` step for lumi.switch.n0acn2). The device does not reliably
-    // send a Write Attributes Response for this attribute, so the write is
-    // fire-and-forget (Z2M uses `disableResponse: true` for the same reason).
-    await this.writeAqaraAttributes({ aqaraMode: 1 }, { waitForResponse: false })
-      .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
-
     // Apply the stored manufacturer-cluster preferences in one write (all
     // three attributes live on the same cluster). Right after an app restart
     // the module may still be re-announcing itself, so the write is retried.
@@ -97,6 +88,20 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       aqaraSwitchType: (this.getSetting('switch_type') ?? 'toggle') === 'momentary' ? 2 : 1,
     }), (...args) => this.log('[settings]', ...args))
       .catch((err: Error) => this.error('Failed to apply settings on init:', err));
+
+    // One-time: put the module in the mode that reports S1 actuations on the
+    // multistateInput cluster. Without this write the device stays silent in
+    // decoupled mode (zigbee-herdsman-converters does the same in its
+    // `configure` step for lumi.switch.n0acn2). The write makes the module
+    // restart its Zigbee application (an end-device announce follows a few
+    // seconds later), so it runs once per paired device and after the
+    // settings write; it is fire-and-forget because the device does not
+    // reliably send a Write Attributes Response for this attribute.
+    if (this.getStoreValue('aqara_multistate_mode_set') !== true) {
+      await this.writeAqaraAttributes({ aqaraMode: 1 }, { waitForResponse: false })
+        .then(() => this.setStoreValue('aqara_multistate_mode_set', true))
+        .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
+    }
 
     this.log('Single Switch Module T1 (lumi.switch.n0acn2) has been initialized');
   }
