@@ -1,0 +1,46 @@
+{
+  "updates": [
+    {
+      "changelog": {
+        "en": "Aqara firmware 0.0.0_0035 (2026-01-05) for lumi.switch.acn047. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+      },
+      "device": {
+        "manufacturerName": "LUMI",
+        "productId": [
+          "lumi.switch.acn047"
+        ]
+      },
+      "files": [
+        {
+          "fileVersion": 35,
+          "imageType": 6416,
+          "manufacturerCode": 4447,
+          "size": 605242,
+          "name": "20260113072905_OTA_lumi.switch.acn047_0.0.0_0035_20260105_C895E8.ota",
+          "integrity": "sha256:c41646a5581f9e66073e22a0583a3a1630668e8682f32dfe30422d9c4dc752b5"
+        }
+      ]
+    },
+    {
+      "changelog": {
+        "en": "Aqara firmware 0.0.0_0035 (2026-01-05) for lumi.switch.acn047. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+      },
+      "device": {
+        "manufacturerName": "Aqara",
+        "productId": [
+          "lumi.switch.acn047"
+        ]
+      },
+      "files": [
+        {
+          "fileVersion": 35,
+          "imageType": 6416,
+          "manufacturerCode": 4447,
+          "size": 605242,
+          "name": "20260113072905_OTA_lumi.switch.acn047_0.0.0_0035_20260105_C895E8.ota",
+          "integrity": "sha256:c41646a5581f9e66073e22a0583a3a1630668e8682f32dfe30422d9c4dc752b5"
+        }
+      ]
+    }
+  ]
+}
