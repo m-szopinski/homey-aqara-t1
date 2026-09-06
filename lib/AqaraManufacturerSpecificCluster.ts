@@ -43,25 +43,33 @@ const ATTRIBUTES = {
   aqaraLifeline: { id: 0x00f7, type: ZCLDataTypes.buffer, manufacturerId: AQARA_MANUFACTURER_ID },
 };
 
-// Diagnostic scan attributes: candidate manufacturer-specific ids seen across
-// Aqara devices in zigbee-herdsman-converters, ZHA quirks and the SmartThings
-// Edge driver. Declared only so readAttributes() sends them with the LUMI
-// manufacturer code; used to dump which ids a firmware actually exposes.
-const SCAN_ATTRIBUTE_IDS = [
-  0x0125, 0x0126, 0x0127, 0x0202, 0x0203, 0x0204, 0x0205, 0x0206, 0x0207,
-  0x0208, 0x0209, 0x020a, 0x020b, 0x020c, 0x020d, 0x020e, 0x020f, 0x0210,
-  0x0211, 0x0212, 0x0213, 0x0214, 0x0215, 0x0285, 0x0286, 0x028b, 0x0505,
-  0x0517,
+// Diagnostic scan attributes: the id ranges Aqara devices are known to use
+// for manufacturer-specific configuration (collected from
+// zigbee-herdsman-converters, ZHA quirks and the SmartThings Edge driver).
+// Declared only so readAttributes() sends them with the LUMI manufacturer
+// code; used to dump which ids a firmware actually exposes.
+const SCAN_RANGES: Array<[number, number]> = [
+  [0x00e0, 0x00f6], // pulse length area (0x00F7 lifeline is declared above)
+  [0x0100, 0x012f], // multi-click / remote configuration area
+  [0x0200, 0x022f], // main device-configuration area
+  [0x0280, 0x0290], // work-mode area
+  [0x02d0, 0x02d1], // interlock area
+  [0x0400, 0x040f], // motor/sensor configuration area
+  [0x0500, 0x051f], // power-on behaviour area
 ];
 const attributes = ATTRIBUTES as {
   [name: string]: { id: number; type: unknown; manufacturerId: number };
 };
-for (const id of SCAN_ATTRIBUTE_IDS) {
-  attributes[`aqaraScan0x${id.toString(16).padStart(4, '0')}`] = {
-    id,
-    type: ZCLDataTypes.uint8,
-    manufacturerId: 0x115f,
-  };
+const declaredIds = new Set(Object.values(ATTRIBUTES).map((attr) => attr.id));
+for (const [from, to] of SCAN_RANGES) {
+  for (let id = from; id <= to; id++) {
+    if (declaredIds.has(id)) continue;
+    attributes[`aqaraScan0x${id.toString(16).padStart(4, '0')}`] = {
+      id,
+      type: ZCLDataTypes.uint8,
+      manufacturerId: 0x115f,
+    };
+  }
 }
 
 const COMMANDS = {};
