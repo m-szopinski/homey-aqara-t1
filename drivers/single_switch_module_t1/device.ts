@@ -87,6 +87,7 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       aqaraSwitchOperationMode: (this.getSetting('operation_mode') ?? 'control_relay') === 'decoupled' ? 0 : 1,
       aqaraSwitchType: (this.getSetting('switch_type') ?? 'toggle') === 'momentary' ? 2 : 1,
     }), (...args) => this.log('[settings]', ...args))
+      .then(() => this.verifyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay')))
       .catch((err: Error) => this.error('Failed to apply settings on init:', err));
 
     // One-time: put the module in the mode that reports S1 actuations on the
@@ -104,6 +105,26 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     }
 
     this.log('Single Switch Module T1 (lumi.switch.n0acn2) has been initialized');
+  }
+
+  /**
+   * Read the operation mode back from the device and compare with what was
+   * written. A Write Attributes Response with a failure status is not raised
+   * as an error by zigbee-clusters, so a rejected write would otherwise look
+   * like a success; the readback catches that. Neither Zigbee2MQTT nor ZHA
+   * expose decoupled mode for this module (open upstream feature request), so
+   * the firmware may simply not implement attribute 0x0200.
+   */
+  async verifyOperationMode(mode: string) {
+    const expected = mode === 'decoupled' ? 0 : 1;
+    const result = await this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
+      .readAttributes(['aqaraSwitchOperationMode']);
+    this.log('[settings] operation mode readback:', JSON.stringify(result));
+    if (result?.aqaraSwitchOperationMode !== expected) {
+      throw new Error(`The device did not accept the S1 operation mode (expected ${expected}, `
+        + `device reports ${result?.aqaraSwitchOperationMode ?? 'nothing'}). `
+        + 'The firmware of this module may not support decoupled mode.');
+    }
   }
 
   /**
@@ -212,6 +233,9 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     }
     if (changedKeys.includes('operation_mode')) {
       await this.setOperationMode(String(newSettings.operation_mode));
+      // Surface a rejected write to the user instead of silently pretending
+      // the mode changed (throwing here makes Homey show the error).
+      await this.verifyOperationMode(String(newSettings.operation_mode));
     }
     if (changedKeys.includes('switch_type')) {
       await this.setSwitchType(String(newSettings.switch_type));
