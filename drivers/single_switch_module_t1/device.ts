@@ -130,7 +130,15 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
         // its value could not be decoded — that by itself is a useful signal.
         for (const name of chunk) {
           try {
-            Object.assign(scanResult, await aqaraCluster.readAttributes([name]));
+            const single = await aqaraCluster.readAttributes([name]);
+            // A response record whose id could not be mapped back to the
+            // requested name ends up under the key "undefined"; since exactly
+            // one attribute was requested, reassign it to that name.
+            if ('undefined' in single) {
+              scanResult[name] = single.undefined ?? 'present (value not decoded)';
+            } else {
+              Object.assign(scanResult, single);
+            }
           } catch (err2) {
             scanResult[name] = `unreadable (${(err2 as Error).message})`;
           }
