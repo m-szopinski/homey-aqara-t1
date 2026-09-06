@@ -449,7 +449,53 @@
           ]
         }
       ],
-      "id": "dual_relay_module_t2"
+      "id": "dual_relay_module_t2",
+      "firmwareUpdates": {
+        "updates": [
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0_0035 (2026-01-05) for lumi.switch.acn047. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "LUMI",
+              "productId": [
+                "lumi.switch.acn047"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 35,
+                "imageType": 6416,
+                "manufacturerCode": 4447,
+                "size": 605242,
+                "name": "20260113072905_OTA_lumi.switch.acn047_0.0.0_0035_20260105_C895E8.ota",
+                "integrity": "sha256:c41646a5581f9e66073e22a0583a3a1630668e8682f32dfe30422d9c4dc752b5"
+              }
+            ]
+          },
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0_0035 (2026-01-05) for lumi.switch.acn047. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "Aqara",
+              "productId": [
+                "lumi.switch.acn047"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 35,
+                "imageType": 6416,
+                "manufacturerCode": 4447,
+                "size": 605242,
+                "name": "20260113072905_OTA_lumi.switch.acn047_0.0.0_0035_20260105_C895E8.ota",
+                "integrity": "sha256:c41646a5581f9e66073e22a0583a3a1630668e8682f32dfe30422d9c4dc752b5"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "name": {
@@ -622,7 +668,95 @@
           ]
         }
       ],
-      "id": "single_switch_module_t1"
+      "id": "single_switch_module_t1",
+      "firmwareUpdates": {
+        "updates": [
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0_0047 (2026-07-21) for lumi.switch.n0acn2: fix known bugs. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "LUMI",
+              "productId": [
+                "lumi.switch.n0acn2"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 47,
+                "imageType": 1409,
+                "manufacturerCode": 4447,
+                "size": 288166,
+                "name": "20260804193102_lumi.switch.n0acn2_0.0.0_0047_20260721_623D54.ota",
+                "integrity": "sha256:32777e0e74eb1bb17c86841867f93adcc33e53d6cdeaedf270870dac442c0f76"
+              }
+            ]
+          },
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0_0047 (2026-07-21) for lumi.switch.n0acn2: fix known bugs. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "Aqara",
+              "productId": [
+                "lumi.switch.n0acn2"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 47,
+                "imageType": 1409,
+                "manufacturerCode": 4447,
+                "size": 288166,
+                "name": "20260804193102_lumi.switch.n0acn2_0.0.0_0047_20260721_623D54.ota",
+                "integrity": "sha256:32777e0e74eb1bb17c86841867f93adcc33e53d6cdeaedf270870dac442c0f76"
+              }
+            ]
+          },
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0.0030 (2024-01-12) for lumi.switch.n0agl1. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "LUMI",
+              "productId": [
+                "lumi.switch.n0agl1"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 30,
+                "imageType": 6169,
+                "manufacturerCode": 4447,
+                "size": 288146,
+                "name": "20240112203928_lumi.switch.n0agl1_0.0.0.0030_20240112_C892CC.ota",
+                "integrity": "sha256:7c1d037e2e0126108ca54a18f8e3728c364e3e3e0c6a066fcf9885df17e20e3b"
+              }
+            ]
+          },
+          {
+            "changelog": {
+              "en": "Aqara firmware 0.0.0.0030 (2024-01-12) for lumi.switch.n0agl1. Image from the Aqara CDN via the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "Aqara",
+              "productId": [
+                "lumi.switch.n0agl1"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 30,
+                "imageType": 6169,
+                "manufacturerCode": 4447,
+                "size": 288146,
+                "name": "20240112203928_lumi.switch.n0agl1_0.0.0.0030_20240112_C892CC.ota",
+                "integrity": "sha256:7c1d037e2e0126108ca54a18f8e3728c364e3e3e0c6a066fcf9885df17e20e3b"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "name": {
@@ -870,7 +1004,53 @@
           }
         }
       },
-      "id": "wireless_relay_2ch"
+      "id": "wireless_relay_2ch",
+      "firmwareUpdates": {
+        "updates": [
+          {
+            "changelog": {
+              "en": "Aqara firmware v0047 (2021-12-01) for lumi.relay.c2acn01. Image from the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "LUMI",
+              "productId": [
+                "lumi.relay.c2acn01"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 47,
+                "imageType": 257,
+                "manufacturerCode": 4447,
+                "size": 182206,
+                "name": "lumi.relay.c2acn01_20211201_v0047.ota",
+                "integrity": "sha256:1167bc4149cad91866a9582d6bced145e6882533ad8fec42a9bdcde27e5dce70"
+              }
+            ]
+          },
+          {
+            "changelog": {
+              "en": "Aqara firmware v0047 (2021-12-01) for lumi.relay.c2acn01. Image from the Zigbee2MQTT OTA index."
+            },
+            "device": {
+              "manufacturerName": "Aqara",
+              "productId": [
+                "lumi.relay.c2acn01"
+              ]
+            },
+            "files": [
+              {
+                "fileVersion": 47,
+                "imageType": 257,
+                "manufacturerCode": 4447,
+                "size": 182206,
+                "name": "lumi.relay.c2acn01_20211201_v0047.ota",
+                "integrity": "sha256:1167bc4149cad91866a9582d6bced145e6882533ad8fec42a9bdcde27e5dce70"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

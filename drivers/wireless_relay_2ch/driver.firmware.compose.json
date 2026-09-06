@@ -1,0 +1,46 @@
+{
+  "updates": [
+    {
+      "changelog": {
+        "en": "Aqara firmware v0047 (2021-12-01) for lumi.relay.c2acn01. Image from the Zigbee2MQTT OTA index."
+      },
+      "device": {
+        "manufacturerName": "LUMI",
+        "productId": [
+          "lumi.relay.c2acn01"
+        ]
+      },
+      "files": [
+        {
+          "fileVersion": 47,
+          "imageType": 257,
+          "manufacturerCode": 4447,
+          "size": 182206,
+          "name": "lumi.relay.c2acn01_20211201_v0047.ota",
+          "integrity": "sha256:1167bc4149cad91866a9582d6bced145e6882533ad8fec42a9bdcde27e5dce70"
+        }
+      ]
+    },
+    {
+      "changelog": {
+        "en": "Aqara firmware v0047 (2021-12-01) for lumi.relay.c2acn01. Image from the Zigbee2MQTT OTA index."
+      },
+      "device": {
+        "manufacturerName": "Aqara",
+        "productId": [
+          "lumi.relay.c2acn01"
+        ]
+      },
+      "files": [
+        {
+          "fileVersion": 47,
+          "imageType": 257,
+          "manufacturerCode": 4447,
+          "size": 182206,
+          "name": "lumi.relay.c2acn01_20211201_v0047.ota",
+          "integrity": "sha256:1167bc4149cad91866a9582d6bced145e6882533ad8fec42a9bdcde27e5dce70"
+        }
+      ]
+    }
+  ]
+}
