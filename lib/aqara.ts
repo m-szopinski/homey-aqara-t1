@@ -26,9 +26,9 @@ const LIFELINE_MEASUREMENTS: {
  * The ZCL data type byte after each key determines how many bytes the value
  * spans, so we can walk the buffer without knowing the keys in advance.
  */
-function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
+function parseAqaraStructFrom(buffer: Buffer, start: number): { [key: number]: number } {
   const result: { [key: number]: number } = {};
-  let i = 0;
+  let i = start;
 
   while (i + 2 <= buffer.length) {
     const key = buffer.readUInt8(i);
@@ -81,6 +81,22 @@ function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
         // avoid misaligned reads on the rest of the buffer.
         return result;
     }
+  }
+
+  return result;
+}
+
+function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
+  const result = parseAqaraStructFrom(buffer, 0);
+
+  // The lifeline value can arrive as a raw ZCL octet-string payload, which
+  // still carries its length prefix (first byte = number of bytes that
+  // follow). In that case parsing from offset 0 hits an unknown type byte and
+  // yields nothing; retry after the prefix.
+  if (Object.keys(result).length === 0
+    && buffer.length > 1
+    && buffer.readUInt8(0) === buffer.length - 1) {
+    return parseAqaraStructFrom(buffer, 1);
   }
 
   return result;

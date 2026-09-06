@@ -82,9 +82,10 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     // Put the module in the mode that reports S1 actuations on the
     // multistateInput cluster. Without this write the device stays silent in
     // decoupled mode (zigbee-herdsman-converters does the same in its
-    // `configure` step for lumi.switch.n0acn2). Not all firmware variants
-    // support the attribute, so a failure is only logged.
-    await this.writeAqaraAttributes({ aqaraMode: 1 })
+    // `configure` step for lumi.switch.n0acn2). The device does not reliably
+    // send a Write Attributes Response for this attribute, so the write is
+    // fire-and-forget (Z2M uses `disableResponse: true` for the same reason).
+    await this.writeAqaraAttributes({ aqaraMode: 1 }, { waitForResponse: false })
       .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
 
     // Apply the stored manufacturer-cluster preferences to the device.
@@ -184,9 +185,12 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
    * (0xFCC0) on endpoint 1. The LUMI manufacturer code (0x115F) is applied by
    * zigbee-clusters from the attribute definitions.
    */
-  async writeAqaraAttributes(attributes: { [name: string]: number | boolean }) {
+  async writeAqaraAttributes(
+    attributes: { [name: string]: number | boolean },
+    opts?: { waitForResponse?: boolean },
+  ) {
     return this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
-      .writeAttributes(attributes);
+      .writeAttributes(attributes, opts);
   }
 
   /**
