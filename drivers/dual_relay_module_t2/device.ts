@@ -91,14 +91,17 @@ export = class DualRelayModuleT2 extends ZigBeeDevice {
 
     // Apply the stored manufacturer-cluster preferences to the device. Attribute
     // ids and value mappings follow the zigbee-herdsman-converters definitions.
-    await this.applyAqaraSettings({
+    // Right after an app restart the module may still be re-announcing itself,
+    // so the write is retried.
+    await aqara.retry(() => this.applyAqaraSettings({
       power_outage_memory: this.getSetting('power_outage_memory') ?? true,
       interlock: this.getSetting('interlock') ?? false,
       operation_mode_l1: this.getSetting('operation_mode_l1') ?? 'control_relay',
       operation_mode_l2: this.getSetting('operation_mode_l2') ?? 'control_relay',
       switch_type: this.getSetting('switch_type') ?? 'toggle',
       work_mode: this.getSetting('work_mode') ?? 'power',
-    }).catch((err: Error) => this.error('Failed to apply settings on init:', err));
+    }), (...args) => this.log('[settings]', ...args))
+      .catch((err: Error) => this.error('Failed to apply settings on init:', err));
 
     this.log('Dual Relay Module T2 (lumi.switch.acn047) has been initialized');
   }

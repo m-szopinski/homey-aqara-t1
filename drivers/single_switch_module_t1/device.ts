@@ -88,13 +88,15 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     await this.writeAqaraAttributes({ aqaraMode: 1 }, { waitForResponse: false })
       .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
 
-    // Apply the stored manufacturer-cluster preferences to the device.
-    await this.setPowerOutageMemory(this.getSetting('power_outage_memory') ?? true)
-      .catch((err: Error) => this.error('Failed to apply power_outage_memory on init:', err));
-    await this.setOperationMode(this.getSetting('operation_mode') ?? 'control_relay')
-      .catch((err: Error) => this.error('Failed to apply operation_mode on init:', err));
-    await this.setSwitchType(this.getSetting('switch_type') ?? 'toggle')
-      .catch((err: Error) => this.error('Failed to apply switch_type on init:', err));
+    // Apply the stored manufacturer-cluster preferences in one write (all
+    // three attributes live on the same cluster). Right after an app restart
+    // the module may still be re-announcing itself, so the write is retried.
+    await aqara.retry(() => this.writeAqaraAttributes({
+      aqaraSwitchPowerOutageMemory: Boolean(this.getSetting('power_outage_memory') ?? true),
+      aqaraSwitchOperationMode: (this.getSetting('operation_mode') ?? 'control_relay') === 'decoupled' ? 0 : 1,
+      aqaraSwitchType: (this.getSetting('switch_type') ?? 'toggle') === 'momentary' ? 2 : 1,
+    }), (...args) => this.log('[settings]', ...args))
+      .catch((err: Error) => this.error('Failed to apply settings on init:', err));
 
     this.log('Single Switch Module T1 (lumi.switch.n0acn2) has been initialized');
   }

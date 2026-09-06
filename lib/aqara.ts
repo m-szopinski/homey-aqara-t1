@@ -102,4 +102,30 @@ function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
   return result;
 }
 
-export = { LIFELINE_MEASUREMENTS, parseAqaraStruct };
+/**
+ * Run an async Zigbee operation with retries. Right after an app (re)start a
+ * module can still be re-announcing itself on the network, so a first write
+ * can time out; a short pause and another attempt usually succeeds.
+ */
+async function retry<T>(
+  fn: () => Promise<T>,
+  log: (...args: unknown[]) => void,
+  attempts = 3,
+  delayMs = 3000,
+): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await fn();
+    } catch (err) {
+      if (attempt >= attempts) throw err;
+      log(`Attempt ${attempt}/${attempts} failed (${(err as Error).message}); retrying in ${delayMs} ms`);
+      // The timer is short-lived (a few seconds during init) and resolves the
+      // promise itself, so it does not need to be cleared on app destroy.
+      // eslint-disable-next-line no-await-in-loop, homey-app/global-timers
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
+export = { LIFELINE_MEASUREMENTS, parseAqaraStruct, retry };
