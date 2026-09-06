@@ -4,6 +4,9 @@ import { ZigBeeDevice } from 'homey-zigbeedriver';
 import { CLUSTER } from 'zigbee-clusters';
 import AqaraManufacturerSpecificCluster = require('../../lib/AqaraManufacturerSpecificCluster');
 import aqara = require('../../lib/aqara');
+// Importing also registers the basic cluster extended with the legacy Aqara
+// operation-mode attribute (0xFF22).
+import AqaraBasicCluster = require('../../lib/AqaraBasicCluster');
 
 export = class SingleSwitchModuleT1 extends ZigBeeDevice {
 
@@ -89,6 +92,14 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     }), (...args) => this.log('[settings]', ...args))
       .then(() => this.verifyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay')))
       .catch((err: Error) => this.error('Failed to apply settings on init:', err));
+
+    // Legacy decoupled-mode path (basic cluster 0xFF22) plus a readback of the
+    // multistate-reporting mode (0x0009) for diagnostics.
+    await this.writeLegacyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay'));
+    await this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
+      .readAttributes(['aqaraMode'])
+      .then((res: unknown) => this.log('[settings] aqaraMode (0x0009) readback:', JSON.stringify(res)))
+      .catch((err: Error) => this.log('[settings] aqaraMode (0x0009) read failed:', err.message));
 
     // One-time: put the module in the mode that reports S1 actuations on the
     // multistateInput cluster. Without this write the device stays silent in
@@ -191,12 +202,35 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
   }
 
   /**
-   * Set the S1 operation mode: 'decoupled' (0) reports S1 only, 'control_relay'
-   * (1) lets S1 toggle the relay directly. Written to 0xFCC0 attribute 0x0200.
+   * Set the S1 operation mode: 'decoupled' reports S1 only, 'control_relay'
+   * lets S1 toggle the relay directly. Written through both known Aqara
+   * mechanisms: 0xFCC0 attribute 0x0200 (0 = decoupled, 1 = control relay,
+   * newer generation) and basic-cluster attribute 0xFF22 (0xFE = decoupled,
+   * 0x12 = control relay, older generation) — the T1 module stores 0x0200 but
+   * has been seen to not act on it, so the legacy attribute is tried as well.
    */
   async setOperationMode(mode: string) {
     const value = mode === 'decoupled' ? 0 : 1;
-    return this.writeAqaraAttributes({ aqaraSwitchOperationMode: value });
+    await this.writeAqaraAttributes({ aqaraSwitchOperationMode: value });
+    await this.writeLegacyOperationMode(mode);
+  }
+
+  /**
+   * Write the legacy basic-cluster operation mode (0xFF22) and log the
+   * readback. Best-effort: firmware that does not implement the attribute
+   * only logs a failure.
+   */
+  async writeLegacyOperationMode(mode: string) {
+    const basicCluster = this.zclNode.endpoints[1].clusters[AqaraBasicCluster.NAME];
+    if (!basicCluster) return;
+    const value = mode === 'decoupled' ? 0xfe : 0x12;
+    try {
+      await basicCluster.writeAttributes({ aqaraOperationMode: value });
+      const readback = await basicCluster.readAttributes(['aqaraOperationMode']);
+      this.log('[settings] legacy operation mode (0xFF22) readback:', JSON.stringify(readback));
+    } catch (err) {
+      this.log('[settings] legacy operation mode (0xFF22) not accepted:', (err as Error).message);
+    }
   }
 
   /**
