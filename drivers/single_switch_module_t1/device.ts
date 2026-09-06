@@ -118,12 +118,26 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     const scanNames = Object.keys(AqaraManufacturerSpecificCluster.ATTRIBUTES)
       .filter((name) => name.startsWith('aqaraScan'));
     const scanResult: { [name: string]: unknown } = {};
+    /* eslint-disable no-await-in-loop */
     for (let i = 0; i < scanNames.length; i += 8) {
-      // eslint-disable-next-line no-await-in-loop
-      await aqaraCluster.readAttributes(scanNames.slice(i, i + 8))
-        .then((res: { [name: string]: unknown }) => Object.assign(scanResult, res))
-        .catch((err: Error) => this.log(`[diag] scan chunk ${i} failed:`, err.message));
+      const chunk = scanNames.slice(i, i + 8);
+      try {
+        Object.assign(scanResult, await aqaraCluster.readAttributes(chunk));
+      } catch (err) {
+        // A single attribute with an unparseable wire type fails the whole
+        // chunk; retry one-by-one so it cannot hide the others. An
+        // "unreadable" entry means the device DOES expose the attribute but
+        // its value could not be decoded — that by itself is a useful signal.
+        for (const name of chunk) {
+          try {
+            Object.assign(scanResult, await aqaraCluster.readAttributes([name]));
+          } catch (err2) {
+            scanResult[name] = `unreadable (${(err2 as Error).message})`;
+          }
+        }
+      }
     }
+    /* eslint-enable no-await-in-loop */
     this.log('[diag] 0xFCC0 scan (only supported ids are listed):', JSON.stringify(scanResult));
 
     // One-time: put the module in the mode that reports S1 actuations on the
