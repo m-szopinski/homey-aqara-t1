@@ -108,6 +108,17 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       .then((res: unknown) => this.log('[settings] aqaraMode (0x0009) readback:', JSON.stringify(res)))
       .catch((err: Error) => this.log('[settings] aqaraMode (0x0009) read failed:', err.message));
 
+    // Diagnostic: list the attributes the 0xFCC0 cluster exposes. Decoupled
+    // mode works when this module is configured by an Aqara hub, so the hub
+    // may be using an additional, undocumented attribute — discovering the
+    // attribute list on a hub-configured module lets us diff against one
+    // configured by Homey.
+    await aqaraCluster.discoverAttributesExtended()
+      .then((attrs: unknown) => this.log('[diag] 0xFCC0 attributes (extended):', JSON.stringify(attrs)))
+      .catch(() => aqaraCluster.discoverAttributes()
+        .then((attrs: unknown) => this.log('[diag] 0xFCC0 attributes:', JSON.stringify(attrs)))
+        .catch((err: Error) => this.log('[diag] attribute discovery failed:', err.message)));
+
     // One-time: put the module in the mode that reports S1 actuations on the
     // multistateInput cluster. Without this write the device stays silent in
     // decoupled mode (zigbee-herdsman-converters does the same in its
