@@ -93,6 +93,13 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       .then(() => this.verifyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay')))
       .catch((err: Error) => this.error('Failed to apply settings on init:', err));
 
+    // Log the firmware identification so users can compare firmware revisions
+    // (e.g. when checking whether an OTA update added decoupled-mode support).
+    await this.zclNode.endpoints[1].clusters[AqaraBasicCluster.NAME]
+      .readAttributes(['swBuildId', 'appVersion', 'dateCode'])
+      .then((res: unknown) => this.log('[firmware]', JSON.stringify(res)))
+      .catch((err: Error) => this.log('[firmware] read failed:', err.message));
+
     // Legacy decoupled-mode path (basic cluster 0xFF22) plus a readback of the
     // multistate-reporting mode (0x0009) for diagnostics.
     await this.writeLegacyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay'));
