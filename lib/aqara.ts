@@ -26,9 +26,9 @@ const LIFELINE_MEASUREMENTS: {
  * The ZCL data type byte after each key determines how many bytes the value
  * spans, so we can walk the buffer without knowing the keys in advance.
  */
-function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
+function parseAqaraStructFrom(buffer: Buffer, start: number): { [key: number]: number } {
   const result: { [key: number]: number } = {};
-  let i = 0;
+  let i = start;
 
   while (i + 2 <= buffer.length) {
     const key = buffer.readUInt8(i);
@@ -86,4 +86,46 @@ function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
   return result;
 }
 
-export = { LIFELINE_MEASUREMENTS, parseAqaraStruct };
+function parseAqaraStruct(buffer: Buffer): { [key: number]: number } {
+  const result = parseAqaraStructFrom(buffer, 0);
+
+  // The lifeline value can arrive as a raw ZCL octet-string payload, which
+  // still carries its length prefix (first byte = number of bytes that
+  // follow). In that case parsing from offset 0 hits an unknown type byte and
+  // yields nothing; retry after the prefix.
+  if (Object.keys(result).length === 0
+    && buffer.length > 1
+    && buffer.readUInt8(0) === buffer.length - 1) {
+    return parseAqaraStructFrom(buffer, 1);
+  }
+
+  return result;
+}
+
+/**
+ * Run an async Zigbee operation with retries. Right after an app (re)start a
+ * module can still be re-announcing itself on the network, so a first write
+ * can time out; a short pause and another attempt usually succeeds.
+ */
+async function retry<T>(
+  fn: () => Promise<T>,
+  log: (...args: unknown[]) => void,
+  attempts = 3,
+  delayMs = 3000,
+): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      return await fn();
+    } catch (err) {
+      if (attempt >= attempts) throw err;
+      log(`Attempt ${attempt}/${attempts} failed (${(err as Error).message}); retrying in ${delayMs} ms`);
+      // The timer is short-lived (a few seconds during init) and resolves the
+      // promise itself, so it does not need to be cleared on app destroy.
+      // eslint-disable-next-line no-await-in-loop, homey-app/global-timers
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
+export = { LIFELINE_MEASUREMENTS, parseAqaraStruct, retry };

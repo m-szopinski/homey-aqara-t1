@@ -5,9 +5,6 @@ import { CLUSTER } from 'zigbee-clusters';
 import AqaraManufacturerSpecificCluster = require('../../lib/AqaraManufacturerSpecificCluster');
 import aqara = require('../../lib/aqara');
 
-// Manufacturer code used for Aqara/LUMI manufacturer-specific attributes.
-const AQARA_MANUFACTURER_ID = 0x115f;
-
 // Per the zigbee-herdsman-converters definition, the T2 (LLKZMK12LM) reports the
 // energy struct key (149) in Wh, so it is scaled to kWh (÷1000). Other keys match
 // the shared defaults.
@@ -94,14 +91,17 @@ export = class DualRelayModuleT2 extends ZigBeeDevice {
 
     // Apply the stored manufacturer-cluster preferences to the device. Attribute
     // ids and value mappings follow the zigbee-herdsman-converters definitions.
-    await this.applyAqaraSettings({
+    // Right after an app restart the module may still be re-announcing itself,
+    // so the write is retried.
+    await aqara.retry(() => this.applyAqaraSettings({
       power_outage_memory: this.getSetting('power_outage_memory') ?? true,
       interlock: this.getSetting('interlock') ?? false,
       operation_mode_l1: this.getSetting('operation_mode_l1') ?? 'control_relay',
       operation_mode_l2: this.getSetting('operation_mode_l2') ?? 'control_relay',
       switch_type: this.getSetting('switch_type') ?? 'toggle',
       work_mode: this.getSetting('work_mode') ?? 'power',
-    }).catch((err: Error) => this.error('Failed to apply settings on init:', err));
+    }), (...args) => this.log('[settings]', ...args))
+      .catch((err: Error) => this.error('Failed to apply settings on init:', err));
 
     this.log('Dual Relay Module T2 (lumi.switch.acn047) has been initialized');
   }
@@ -168,7 +168,9 @@ export = class DualRelayModuleT2 extends ZigBeeDevice {
       this.log(`Aqara cluster not present on endpoint ${endpoint}; skipping`, attributes);
       return;
     }
-    await cluster.writeAttributes(attributes, { manufacturerId: AQARA_MANUFACTURER_ID });
+    // The LUMI manufacturer code (0x115F) is applied by zigbee-clusters from
+    // the attribute definitions.
+    await cluster.writeAttributes(attributes);
   }
 
   /**

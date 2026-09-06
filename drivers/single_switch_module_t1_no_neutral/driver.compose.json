@@ -45,11 +45,25 @@
     ],
     "endpoints": {
       "1": {
-        "clusters": [0, 2, 3, 4, 5, 6, 9, 10, 64704],
-        "bindings": [6]
+        "clusters": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9,
+          10,
+          64704
+        ],
+        "bindings": [
+          6
+        ]
       },
       "41": {
-        "clusters": [18]
+        "clusters": [
+          18
+        ]
       }
     },
     "learnmode": {
@@ -87,18 +101,26 @@
       },
       "value": "control_relay",
       "hint": {
-        "en": "\"Control relay\": S1 toggles the relay directly. \"Decoupled\": S1 only reports its state to Homey, so you can use it in Flows independently.",
-        "nl": "\"Relais aansturen\": S1 schakelt het relais direct. \"Ontkoppeld\": S1 meldt alleen zijn status aan Homey.",
-        "pl": "„Steruj przekaźnikiem\": S1 przełącza przekaźnik bezpośrednio. „Oddzielony (decoupled)\": S1 tylko raportuje swój stan do Homey, więc możesz go używać niezależnie we Flow."
+        "en": "Controls what the switch wired to S1 does. \"Control relay\": S1 toggles the relay directly (classic). \"Decoupled\": S1 only reports its state to Homey. NOTE: current firmware of this module accepts the setting but ignores it — the relay keeps following S1 and no S1 events are sent. This is a firmware limitation (decoupled mode is not available for this module in Home Assistant or Zigbee2MQTT either); the Dual Relay Module T2 does support it.",
+        "nl": "Bepaalt wat de schakelaar op S1 doet. \"Relais aansturen\": S1 schakelt het relais direct. \"Ontkoppeld\": S1 meldt alleen zijn status aan Homey. LET OP: de huidige firmware van deze module accepteert de instelling maar negeert deze — het relais blijft S1 volgen. Dit is een firmwarebeperking (ontkoppelde modus is voor deze module ook niet beschikbaar in Home Assistant of Zigbee2MQTT); de Dual Relay Module T2 ondersteunt het wel.",
+        "pl": "Określa, co robi przełącznik podłączony do S1. „Steruj przekaźnikiem\": S1 przełącza przekaźnik bezpośrednio (klasycznie). „Oddzielony (decoupled)\": S1 tylko raportuje swój stan do Homey. UWAGA: obecny firmware tego modułu przyjmuje ustawienie, ale je ignoruje — przekaźnik nadal reaguje na S1, a zdarzenia S1 nie są wysyłane. To ograniczenie firmware (tryb decoupled nie jest dostępny dla tego modułu także w Home Assistant ani Zigbee2MQTT); moduł Dual Relay T2 go wspiera."
       },
       "values": [
         {
           "id": "control_relay",
-          "label": { "en": "Control relay", "nl": "Relais aansturen", "pl": "Steruj przekaźnikiem" }
+          "label": {
+            "en": "Control relay",
+            "nl": "Relais aansturen",
+            "pl": "Steruj przekaźnikiem"
+          }
         },
         {
           "id": "decoupled",
-          "label": { "en": "Decoupled (report only)", "nl": "Ontkoppeld (alleen melden)", "pl": "Oddzielony (tylko raport)" }
+          "label": {
+            "en": "Decoupled (report only)",
+            "nl": "Ontkoppeld (alleen melden)",
+            "pl": "Oddzielony (tylko raport)"
+          }
         }
       ]
     },
@@ -119,11 +141,19 @@
       "values": [
         {
           "id": "toggle",
-          "label": { "en": "Toggle (bistable)", "nl": "Tuimelschakelaar", "pl": "Bistabilny" }
+          "label": {
+            "en": "Toggle (bistable)",
+            "nl": "Tuimelschakelaar",
+            "pl": "Bistabilny"
+          }
         },
         {
           "id": "momentary",
-          "label": { "en": "Momentary (push button)", "nl": "Pulsdruk", "pl": "Monostabilny (przycisk)" }
+          "label": {
+            "en": "Momentary (push button)",
+            "nl": "Pulsdruk",
+            "pl": "Monostabilny (przycisk)"
+          }
         }
       ]
     }

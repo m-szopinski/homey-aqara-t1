@@ -4,9 +4,9 @@ import { ZigBeeDevice } from 'homey-zigbeedriver';
 import { CLUSTER } from 'zigbee-clusters';
 import AqaraManufacturerSpecificCluster = require('../../lib/AqaraManufacturerSpecificCluster');
 import aqara = require('../../lib/aqara');
-
-// Manufacturer code used for Aqara/LUMI manufacturer-specific attributes.
-const AQARA_MANUFACTURER_ID = 0x115f;
+// Importing also registers the basic cluster extended with the legacy Aqara
+// operation-mode attribute (0xFF22).
+import AqaraBasicCluster = require('../../lib/AqaraBasicCluster');
 
 export = class SingleSwitchModuleT1 extends ZigBeeDevice {
 
@@ -82,15 +82,107 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
       });
     }
 
-    // Apply the stored manufacturer-cluster preferences to the device.
-    await this.setPowerOutageMemory(this.getSetting('power_outage_memory') ?? true)
-      .catch((err: Error) => this.error('Failed to apply power_outage_memory on init:', err));
-    await this.setOperationMode(this.getSetting('operation_mode') ?? 'control_relay')
-      .catch((err: Error) => this.error('Failed to apply operation_mode on init:', err));
-    await this.setSwitchType(this.getSetting('switch_type') ?? 'toggle')
-      .catch((err: Error) => this.error('Failed to apply switch_type on init:', err));
+    // Apply the stored manufacturer-cluster preferences in one write (all
+    // three attributes live on the same cluster). Right after an app restart
+    // the module may still be re-announcing itself, so the write is retried.
+    await aqara.retry(() => this.writeAqaraAttributes({
+      aqaraSwitchPowerOutageMemory: Boolean(this.getSetting('power_outage_memory') ?? true),
+      aqaraSwitchOperationMode: (this.getSetting('operation_mode') ?? 'control_relay') === 'decoupled' ? 0 : 1,
+      aqaraSwitchType: (this.getSetting('switch_type') ?? 'toggle') === 'momentary' ? 2 : 1,
+    }), (...args) => this.log('[settings]', ...args))
+      .then(() => this.verifyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay')))
+      .catch((err: Error) => this.error('Failed to apply settings on init:', err));
+
+    // Log the firmware identification so users can compare firmware revisions
+    // (e.g. when checking whether an OTA update added decoupled-mode support).
+    await this.zclNode.endpoints[1].clusters[AqaraBasicCluster.NAME]
+      .readAttributes(['swBuildId', 'appVersion', 'dateCode'])
+      .then((res: unknown) => this.log('[firmware]', JSON.stringify(res)))
+      .catch((err: Error) => this.log('[firmware] read failed:', err.message));
+
+    // Legacy decoupled-mode path (basic cluster 0xFF22) plus a readback of the
+    // multistate-reporting mode (0x0009) for diagnostics.
+    await this.writeLegacyOperationMode(String(this.getSetting('operation_mode') ?? 'control_relay'));
+    await this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
+      .readAttributes(['aqaraMode'])
+      .then((res: unknown) => this.log('[settings] aqaraMode (0x0009) readback:', JSON.stringify(res)))
+      .catch((err: Error) => this.log('[settings] aqaraMode (0x0009) read failed:', err.message));
+
+    // Diagnostic: scan candidate 0xFCC0 attribute ids (declared as aqaraScan*
+    // in the cluster). Decoupled mode works when this module is configured by
+    // an Aqara hub, so the hub may be using an additional, undocumented
+    // attribute — this dump lets us diff a hub-configured module against one
+    // configured by Homey. Attribute discovery cannot be used here: the
+    // zigbee-clusters discover command is sent without the
+    // manufacturer-specific flag and returns an empty list on this cluster.
+    const scanNames = Object.keys(AqaraManufacturerSpecificCluster.ATTRIBUTES)
+      .filter((name) => name.startsWith('aqaraScan'));
+    const scanResult: { [name: string]: unknown } = {};
+    /* eslint-disable no-await-in-loop */
+    for (let i = 0; i < scanNames.length; i += 8) {
+      const chunk = scanNames.slice(i, i + 8);
+      try {
+        Object.assign(scanResult, await aqaraCluster.readAttributes(chunk));
+      } catch (err) {
+        // A single attribute with an unparseable wire type fails the whole
+        // chunk; retry one-by-one so it cannot hide the others. An
+        // "unreadable" entry means the device DOES expose the attribute but
+        // its value could not be decoded — that by itself is a useful signal.
+        for (const name of chunk) {
+          try {
+            const single = await aqaraCluster.readAttributes([name]);
+            // A response record whose id could not be mapped back to the
+            // requested name ends up under the key "undefined"; since exactly
+            // one attribute was requested, reassign it to that name.
+            if ('undefined' in single) {
+              scanResult[name] = single.undefined ?? 'present (value not decoded)';
+            } else {
+              Object.assign(scanResult, single);
+            }
+          } catch (err2) {
+            scanResult[name] = `unreadable (${(err2 as Error).message})`;
+          }
+        }
+      }
+    }
+    /* eslint-enable no-await-in-loop */
+    this.log('[diag] 0xFCC0 scan (only supported ids are listed):', JSON.stringify(scanResult));
+
+    // One-time: put the module in the mode that reports S1 actuations on the
+    // multistateInput cluster. Without this write the device stays silent in
+    // decoupled mode (zigbee-herdsman-converters does the same in its
+    // `configure` step for lumi.switch.n0acn2). The write makes the module
+    // restart its Zigbee application (an end-device announce follows a few
+    // seconds later), so it runs once per paired device and after the
+    // settings write; it is fire-and-forget because the device does not
+    // reliably send a Write Attributes Response for this attribute.
+    if (this.getStoreValue('aqara_multistate_mode_set') !== true) {
+      await this.writeAqaraAttributes({ aqaraMode: 1 }, { waitForResponse: false })
+        .then(() => this.setStoreValue('aqara_multistate_mode_set', true))
+        .catch((err: Error) => this.log('Failed to enable multistate reporting mode (S1 events may not report):', err.message));
+    }
 
     this.log('Single Switch Module T1 (lumi.switch.n0acn2) has been initialized');
+  }
+
+  /**
+   * Read the operation mode back from the device and compare with what was
+   * written. A Write Attributes Response with a failure status is not raised
+   * as an error by zigbee-clusters, so a rejected write would otherwise look
+   * like a success; the readback catches that. Neither Zigbee2MQTT nor ZHA
+   * expose decoupled mode for this module (open upstream feature request), so
+   * the firmware may simply not implement attribute 0x0200.
+   */
+  async verifyOperationMode(mode: string) {
+    const expected = mode === 'decoupled' ? 0 : 1;
+    const result = await this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
+      .readAttributes(['aqaraSwitchOperationMode']);
+    this.log('[settings] operation mode readback:', JSON.stringify(result));
+    if (result?.aqaraSwitchOperationMode !== expected) {
+      throw new Error(`The device did not accept the S1 operation mode (expected ${expected}, `
+        + `device reports ${result?.aqaraSwitchOperationMode ?? 'nothing'}). `
+        + 'The firmware of this module may not support decoupled mode.');
+    }
   }
 
   /**
@@ -157,12 +249,35 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
   }
 
   /**
-   * Set the S1 operation mode: 'decoupled' (0) reports S1 only, 'control_relay'
-   * (1) lets S1 toggle the relay directly. Written to 0xFCC0 attribute 0x0200.
+   * Set the S1 operation mode: 'decoupled' reports S1 only, 'control_relay'
+   * lets S1 toggle the relay directly. Written through both known Aqara
+   * mechanisms: 0xFCC0 attribute 0x0200 (0 = decoupled, 1 = control relay,
+   * newer generation) and basic-cluster attribute 0xFF22 (0xFE = decoupled,
+   * 0x12 = control relay, older generation) — the T1 module stores 0x0200 but
+   * has been seen to not act on it, so the legacy attribute is tried as well.
    */
   async setOperationMode(mode: string) {
     const value = mode === 'decoupled' ? 0 : 1;
-    return this.writeAqaraAttributes({ aqaraSwitchOperationMode: value });
+    await this.writeAqaraAttributes({ aqaraSwitchOperationMode: value });
+    await this.writeLegacyOperationMode(mode);
+  }
+
+  /**
+   * Write the legacy basic-cluster operation mode (0xFF22) and log the
+   * readback. Best-effort: firmware that does not implement the attribute
+   * only logs a failure.
+   */
+  async writeLegacyOperationMode(mode: string) {
+    const basicCluster = this.zclNode.endpoints[1].clusters[AqaraBasicCluster.NAME];
+    if (!basicCluster) return;
+    const value = mode === 'decoupled' ? 0xfe : 0x12;
+    try {
+      await basicCluster.writeAttributes({ aqaraOperationMode: value });
+      const readback = await basicCluster.readAttributes(['aqaraOperationMode']);
+      this.log('[settings] legacy operation mode (0xFF22) readback:', JSON.stringify(readback));
+    } catch (err) {
+      this.log('[settings] legacy operation mode (0xFF22) not accepted:', (err as Error).message);
+    }
   }
 
   /**
@@ -176,11 +291,15 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
 
   /**
    * Write one or more attributes to the Aqara manufacturer-specific cluster
-   * (0xFCC0) on endpoint 1, using the LUMI manufacturer code.
+   * (0xFCC0) on endpoint 1. The LUMI manufacturer code (0x115F) is applied by
+   * zigbee-clusters from the attribute definitions.
    */
-  async writeAqaraAttributes(attributes: { [name: string]: number | boolean }) {
+  async writeAqaraAttributes(
+    attributes: { [name: string]: number | boolean },
+    opts?: { waitForResponse?: boolean },
+  ) {
     return this.zclNode.endpoints[1].clusters[AqaraManufacturerSpecificCluster.NAME]
-      .writeAttributes(attributes, { manufacturerId: AQARA_MANUFACTURER_ID });
+      .writeAttributes(attributes, opts);
   }
 
   /**
@@ -195,6 +314,9 @@ export = class SingleSwitchModuleT1 extends ZigBeeDevice {
     }
     if (changedKeys.includes('operation_mode')) {
       await this.setOperationMode(String(newSettings.operation_mode));
+      // Surface a rejected write to the user instead of silently pretending
+      // the mode changed (throwing here makes Homey show the error).
+      await this.verifyOperationMode(String(newSettings.operation_mode));
     }
     if (changedKeys.includes('switch_type')) {
       await this.setSwitchType(String(newSettings.switch_type));
